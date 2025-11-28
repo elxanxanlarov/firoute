@@ -1,0 +1,35 @@
+# === GENERAL ===
+.DS_Store
+Thumbs.db
+*.log
+
+# === NODE PROJECTS (Front + Back) ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# === ENVIRONMENT VARIABLES ===
+.env
+.env.local
+.env.development
+.env.production
+
+# === VITE FRONTEND DIST ===
+firoute-front/dist/
+firoute-front/.vite/
+
+# === REACT BUILD (əgər create-react-app idisə) ===
+firoute-front/build/
+
+# === BACKEND BUILD (əgər transpile varsa) ===
+firoute-back/dist/
+firoute-back/build/
+
+# === ADDITIONAL ===
+.idea/
+.vscode/
+*.pid
+*.seed
+*.env.*

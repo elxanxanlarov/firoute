@@ -1,0 +1,239 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "mysql"
+    url      = env("DATABASE_URL")
+}
+
+model user {
+  id          String   @id @default(uuid()) @db.VarChar(36)
+  firstName   String   @db.VarChar(100)
+  lastName    String   @db.VarChar(100)
+  email       String   @unique @db.VarChar(255)
+  phone       String?  @db.VarChar(20)
+  address     String?  @db.Text
+  position    String?  @db.VarChar(100)
+  department  String?  @db.VarChar(100)
+  hireDate    DateTime?
+  salary      Decimal? @db.Decimal(10, 2)
+  password    String   @db.VarChar(255)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  roleId      String   @db.VarChar(36)
+  role        role     @relation(fields: [roleId], references: [id])
+  sessions     session[]
+  systemActivities systemactivity[]
+  
+  @@map("users")
+}
+
+
+model session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  user      user     @relation(fields: [userId], references: [id])
+  userId    String
+  userAgent String?
+  ip        String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  @@map("sessions")
+}
+
+
+// Role model figmy
+model role {
+  id          String   @id @default(uuid()) @db.VarChar(36)
+  name        String   @unique @db.VarChar(100)
+  description String?  @db.Text
+  isActive    Boolean  @default(true)
+  isCore      Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relations
+  users       user[]
+  
+  @@map("roles")
+}
+
+
+
+
+
+// Customer model
+model customer {
+  id            String   @id @default(uuid()) @db.VarChar(36)
+  firstName     String   @db.VarChar(100)
+  lastName      String   @db.VarChar(100)
+  email         String?  @unique @db.VarChar(255)
+  phone         String?  @db.VarChar(20)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  reservations  reservation[]
+  systemActivities systemactivity[]
+  radcheckAccounts radcheck[]
+  
+  @@map("customers")
+}
+
+model room {
+  id           String   @id @default(uuid()) @db.VarChar(36)
+  number       String   @unique @db.VarChar(20)
+  floor        Int?     
+  used         Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  reservations reservation[]
+
+  @@map("rooms")
+}
+
+model reservation {
+  id                String   @id @default(uuid()) @db.VarChar(36)
+  customerId        String   
+  customer          customer @relation(fields: [customerId], references: [id])
+
+  roomId            String
+  room              room    @relation(fields: [roomId], references: [id])
+
+  guestCount        Int
+  checkIndate       DateTime
+  checkOutdate      DateTime
+  status            ReservationStatus @default(PENDING)
+
+
+  wifiProvisioned   Boolean    @default(false)
+  wifiProfileId      String?
+
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+
+  @@map("reservations")
+}
+
+enum ReservationStatus {
+  PENDING
+  CHECKED_IN
+  CHECKED_OUT
+  CANCELED
+}
+
+// Router model
+model router {
+  id                String   @id @default(uuid()) @db.VarChar(36)
+  name              String   @unique @db.VarChar(100)
+  ip                String   @db.VarChar(45) // IPv4 və IPv6 üçün
+  port              String   @db.VarChar(10)
+  username          String   @db.VarChar(100)
+  password          String   @db.VarChar(255) // Şifrələnmiş
+  networkInterface  String?  @db.VarChar(50)
+  status            String   @default("Active") @db.VarChar(20) // Active, Inactive, Maintenance
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  @@map("routers")
+}
+
+
+// System Activity model for tracking system actions
+model systemactivity {
+  id            String   @id @default(uuid()) @db.VarChar(36)
+  action        String   @db.VarChar(100)
+  actionType    String   @default("info") @db.VarChar(20) // success, error, warning, info
+  message       String   @db.Text
+  customerId    String?  @db.VarChar(36)
+  userId        String?  @db.VarChar(36) // Hansı user tərəfindən edilib
+  details       Json?    // Additional details about the action
+  performedBy   String   @default("System") @db.VarChar(255) // User adı (display üçün)
+  createdAt     DateTime @default(now())
+  
+  // Relations
+  customer      customer? @relation(fields: [customerId], references: [id])
+  user          user?     @relation(fields: [userId], references: [id])
+  
+  @@map("system_activities")
+}
+
+
+// Pending Customer model
+model pendingcustomer {
+  id                String   @id @default(uuid()) @db.VarChar(36)
+  firstName         String   @db.VarChar(100)
+  lastName          String   @db.VarChar(100)
+  phone             String?  @db.VarChar(20)
+  email             String?  @db.VarChar(255)
+  activityStartDate DateTime  @default(now()) // Aktivlik başlanğıc tarixi (default: bu gün)
+  activityEndDate   DateTime? // Aktivlik bitiş tarixi
+  maxConnections     Int?     @db.Int // Maksimum giriş sayı
+  status             String   @default("pending") @db.VarChar(20) // pending, approved, rejected
+  notes              String?  @db.Text
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  
+  @@map("pending_customers")
+}
+
+// Radcheck model - Radius accounts
+model radcheck {
+  id          String   @id @default(uuid()) @db.VarChar(36)
+  username    String   @db.VarChar(64)
+  attribute   String   @default("Cleartext-Password") @db.VarChar(64)
+  op          String   @default(":=") @db.VarChar(2)
+  value       String   @db.VarChar(253)
+  customerId  String   @db.VarChar(36)
+  customer    customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  @@unique([username, attribute])
+  @@map("radcheck")
+}
+
+// Radius Profile model - WiFi profilləri
+model radiusProfile {
+  id            String   @id @default(uuid()) @db.VarChar(36)
+  displayName   String   @db.VarChar(100)
+  groupname     String   @unique @db.VarChar(64)
+  maxGuests     Int      @default(1)
+  downloadMbps  Decimal  @db.Decimal(10, 2)
+  uploadMbps    Decimal  @db.Decimal(10, 2)
+  sessionHours  Decimal? @db.Decimal(10, 2)
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relations
+  radgroupreply radgroupreply[]
+
+  @@map("radius_profiles")
+}
+
+// Radgroupreply model - Radius group reply attributes
+model radgroupreply {
+  id          String   @id @default(uuid()) @db.VarChar(36)
+  groupname   String   @db.VarChar(64)
+  attribute   String   @db.VarChar(64)
+  op          String   @default(":=") @db.VarChar(2)
+  value       String   @db.VarChar(253)
+  profileId   String?  @db.VarChar(36)
+  profile     radiusProfile? @relation(fields: [profileId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([groupname, attribute])
+  @@map("radgroupreply")
+}
+
+
