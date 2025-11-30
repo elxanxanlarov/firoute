@@ -6,6 +6,8 @@ import Login from './pages/Login'
 import PendingCustomerForm from './pages/PendingCustomerForm'
 import Profile from './pages/Profile'
 import Home from './pages/Home'
+import WifiPassword from './pages/WifiPassword'
+import WifiCheckBox from './pages/WifiCheckBox'
 const App = () => {
   return (
     <Routes>
@@ -14,6 +16,8 @@ const App = () => {
       <Route path="/dashboard/login" element={<Login />} />
       <Route path="/pending-customer-form" element={<PendingCustomerForm />} />
       <Route path="/profile" element={<Profile />} />
+      <Route path="/wifi-password" element={<WifiPassword />} />
+      <Route path="/wifi-checkbox" element={<WifiCheckBox />} />
       <Route path="/" element={<Home />} />
     </Routes>
   )

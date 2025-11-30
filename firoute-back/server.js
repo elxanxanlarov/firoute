@@ -16,7 +16,8 @@ import { ensureDefaultSuperadmin } from './controllers/userController.js';
 import { createServer } from 'http';
 import { pool } from './db.js';
 import { initializeSocket } from './socket.js';
-
+import dotenv from 'dotenv';
+dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 const PORT = 3000;
@@ -26,7 +27,7 @@ initializeSocket(httpServer);
 
 // CORS – obyekt kimi istifadə et
 app.use(cors({
-  origin: "http://localhost:5174",
+  origin: process.env.FRONTEND_URL,
   credentials: true,
 }));
 

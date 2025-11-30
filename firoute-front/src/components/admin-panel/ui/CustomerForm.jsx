@@ -378,20 +378,20 @@ export default function CustomerForm() {
                                                     </p>
                                                 </div>
                                                 {!isFinished && (
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => {
-                                                            const isAdmin = location.pathname.includes('/admin');
-                                                            const reservationFormPath = isAdmin 
-                                                                ? `/admin/reservation-form?id=${reservation.id}` 
-                                                                : `/reception/reservation-form?id=${reservation.id}`;
-                                                            navigate(reservationFormPath);
-                                                        }}
-                                                        className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 flex items-center gap-1"
-                                                    >
-                                                        <MdEdit className="w-4 h-4" />
-                                                        Redaktə et
-                                                    </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        const isAdmin = location.pathname.includes('/admin');
+                                                        const reservationFormPath = isAdmin 
+                                                            ? `/admin/reservation-form?id=${reservation.id}` 
+                                                            : `/reception/reservation-form?id=${reservation.id}`;
+                                                        navigate(reservationFormPath);
+                                                    }}
+                                                    className="px-3 py-1 text-sm font-medium text-blue-600 bg-blue-50 rounded-md hover:bg-blue-100 flex items-center gap-1"
+                                                >
+                                                    <MdEdit className="w-4 h-4" />
+                                                    Redaktə et
+                                                </button>
                                                 )}
                                             </div>
                                         </div>
