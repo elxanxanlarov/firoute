@@ -4,6 +4,71 @@ import { createSystemActivity } from './systemActivityController.js';
 
 const prisma = new PrismaClient();
 
+// Default "basic_profile" seed – Mikrotik-Rate-Limit: 2M/1M, Session-Timeout: 86400
+export async function ensureDefaultBasicProfile() {
+  const groupname = 'basic_profile';
+  const rateLimitAttr = 'Mikrotik-Rate-Limit';
+  const sessionAttr = 'Session-Timeout';
+
+  try {
+    // radgroupreply-də profil atributlarını yoxla
+    const [exists] = await pool.query(
+      `SELECT 1 FROM radgroupreply WHERE groupname = ? AND attribute = ? LIMIT 1`,
+      [groupname, rateLimitAttr]
+    );
+
+    if (exists.length === 0) {
+      // Yoxdursa insert et
+      await pool.query(
+        `INSERT INTO radgroupreply (groupname, attribute, op, value) VALUES (?, ?, ':=', ?)`,
+        [groupname, rateLimitAttr, '2M/1M']
+      );
+      await pool.query(
+        `INSERT INTO radgroupreply (groupname, attribute, op, value) VALUES (?, ?, ':=', ?)`,
+        [groupname, sessionAttr, '86400']
+      );
+      console.log('[radius] Default profile created: basic_profile (2M/1M, 86400)');
+    }
+
+    // Prisma radiusProfile metadata – upsert
+    const displayName = 'Basic Profile';
+    const downloadMbps = 2;
+    const uploadMbps = 1;
+    const sessionHours = 24;
+
+    const found = await prisma.radiusProfile.findUnique({
+      where: { groupname }
+    });
+
+    if (found) {
+      await prisma.radiusProfile.update({
+        where: { groupname },
+        data: {
+          displayName,
+          downloadMbps,
+          uploadMbps,
+          sessionHours,
+          isActive: true
+        }
+      });
+    } else {
+      await prisma.radiusProfile.create({
+        data: {
+          displayName,
+          groupname,
+          maxGuests: 1,
+          downloadMbps,
+          uploadMbps,
+          sessionHours,
+          isActive: true
+        }
+      });
+    }
+  } catch (error) {
+    console.error('ensureDefaultBasicProfile error:', error);
+  }
+}
+
 // Bütün profil qruplarını əldə et
 export const getAllProfiles = async (req, res) => {
   try {

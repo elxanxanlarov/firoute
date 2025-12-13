@@ -11,19 +11,27 @@ import roomRoutes from './routes/roomRoutes.js';
 import reservationRoutes from './routes/reservationRoutes.js';
 import systemActivityRoutes from './routes/systemActivityRoutes.js';
 import pendingCustomerRoutes from './routes/pendingCustomerRoutes.js';
+import radiusUsersRoutes from './routes/radius/radiusUsersRoutes.js';
 import { ensureCoreRoles } from './controllers/roleController.js';
 import { ensureDefaultSuperadmin } from './controllers/userController.js';
 import { createServer } from 'http';
 import { pool } from './db.js';
 import { initializeSocket } from './socket.js';
 import dotenv from 'dotenv';
+import os from 'os';
+import { ensureDefaultRadiusUser } from './controllers/radius/radiusUsersController.js';
 dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 const PORT = 3000;
-
 // Socket.io server-ini başlat
 initializeSocket(httpServer);
+
+// Default user-i server startında və periodik yoxla/bərpa et
+(async () => {
+  await ensureDefaultRadiusUser();
+  setInterval(() => ensureDefaultRadiusUser().catch(() => {}), 60_000);
+})();
 
 // CORS – obyekt kimi istifadə et
 app.use(cors({
@@ -112,7 +120,7 @@ app.use('/api/rooms', roomRoutes);
 app.use('/api/reservations', reservationRoutes);
 app.use('/api/system-activities', systemActivityRoutes);
 app.use('/api/pending-customers', pendingCustomerRoutes);
-
+app.use('/api/radius-users', radiusUsersRoutes);
 // Serveri BİR DƏFƏ işə sal
 (async () => {
   try {

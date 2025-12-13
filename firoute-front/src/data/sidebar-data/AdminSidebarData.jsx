@@ -30,6 +30,10 @@ export const AdminSidebarData = [
     path: '/admin/settings',
     icon: <MdSettings />,
   },
-  
+  {
+    title: 'internet_users',
+    path: '/admin/internet-users',
+    icon: <MdPeopleAlt />,
+  },
   
 ]

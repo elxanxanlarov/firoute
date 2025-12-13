@@ -19,6 +19,7 @@ import RadiusProfileManagement from "../components/admin-panel/RadiusProfileMana
 import RadiusProfileForm from "../components/admin-panel/ui/RadiusProfileForm.jsx"
 import ReservationForm from "../components/admin-panel/ui/ReservationForm.jsx"
 import WifiCredentials from "../components/admin-panel/ui/WifiCredentials.jsx"
+import InternetUsers from "../components/admin-panel/InternetUsers.jsx"
 export default function AdminPanel() {
     const { slug } = useParams()
     
@@ -35,6 +36,7 @@ export default function AdminPanel() {
             {slug === "pending-customers" && <PendingCustomers/>}
             {slug === "activity-log" && <ActivityLog />}
             {slug === "profile" && <Profile />}
+            {slug === "internet-users" && <InternetUsers />}
 
             {/* Settings */}
             {slug === "settings" && <Settings />}   

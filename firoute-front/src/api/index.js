@@ -10,3 +10,5 @@ export { radiusProfileAPI } from './radiusProfileAPI.js';
 export { reservationAPI } from './reservationAPI.js';
 export { systemActivityAPI } from './systemActivityAPI.js';
 export { pendingCustomerAPI } from './pendingCustomerAPI.js';
+export { radiusUsersAPI } from './radiusUsersAPI.js';
+export { macAPI } from './mac/index.js';

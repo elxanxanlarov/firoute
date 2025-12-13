@@ -365,9 +365,9 @@ export default function TableTamplate({
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {paginatedData.map((item) => (
+            {paginatedData.map((item, index) => (
               <tr
-                key={item.id}
+                key={item.id || item.username || `row-${index}`}
                 className={`hover:bg-gray-50 cursor-pointer ${selectedRows.includes(item.id) ? 'bg-blue-50' : ''}`}
                 onClick={() => showBulkActions && handleSelectRow(item.id)}
               >
