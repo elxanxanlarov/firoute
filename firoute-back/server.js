@@ -24,7 +24,7 @@ dotenv.config();
 const app = express();
 const httpServer = createServer(app);
 const PORT = 3000;
-// Socket.io server-ini başlat
+// Socket.io server-ini başl
 initializeSocket(httpServer);
 
 // Default user-i server startında və periodik yoxla/bərpa et
